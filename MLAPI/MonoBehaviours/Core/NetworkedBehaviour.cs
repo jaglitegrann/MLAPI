@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
@@ -189,9 +189,9 @@ namespace MLAPI.MonoBehaviours.Core
         /// <param name="visible"></param>
         public virtual void OnSetLocalVisibility(bool visible)
         {
-            Renderer[] renderers = GetComponentsInChildren<Renderer>();
-            for (int i = 0; i < renderers.Length; i++)
-                renderers[i].enabled = visible;
+            //Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            //for (int i = 0; i < renderers.Length; i++)
+            //    renderers[i].enabled = visible;
         }
 
         private void CacheAttributedMethods()
@@ -593,6 +593,7 @@ namespace MLAPI.MonoBehaviours.Core
                             FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                             syncedVarFields[i].FieldValue = FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                             syncedVarFields[i].Dirty = false;
+                            invokeSyncvarMethod(syncedVarFields[i].HookMethod);
                         }
                     }
                     List<uint> stillDirtyIds = InternalMessageHandler.Send("MLAPI_SYNC_VAR_UPDATE", "MLAPI_INTERNAL", writer, networkId);
@@ -628,6 +629,7 @@ namespace MLAPI.MonoBehaviours.Core
                                     //Only targeted SyncedVars were changed. Thus we need to set them as non dirty here since it wont be done by the next loop.
                                     syncedVarFields[i].FieldValue = FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                                     syncedVarFields[i].Dirty = false;
+                                    invokeSyncvarMethod(syncedVarFields[i].HookMethod);
                                 }
                             }
                         }
@@ -658,6 +660,7 @@ namespace MLAPI.MonoBehaviours.Core
                             FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                             syncedVarFields[i].FieldValue = FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                             syncedVarFields[i].Dirty = false;
+                            invokeSyncvarMethod(syncedVarFields[i].HookMethod);
                         }
                     }
                     List<uint> stillDirtyIds = InternalMessageHandler.Send("MLAPI_SYNC_VAR_UPDATE", "MLAPI_INTERNAL", writer, ownerClientId, networkId, null, null); // Send to everyone except target.
@@ -668,6 +671,11 @@ namespace MLAPI.MonoBehaviours.Core
                     }
                 }
             }
+        }
+
+        void invokeSyncvarMethod(MethodInfo hookMethod) {
+            if (hookMethod != null)
+                hookMethod.Invoke(this, null);
         }
 
         private bool SetDirtyness()
