@@ -1,4 +1,4 @@
-﻿namespace MLAPI.Data.Transports
+namespace MLAPI.Data.Transports
 {
     /// <summary>
     /// A UDP transport
@@ -62,12 +62,12 @@
         /// <param name="port">The port to connect to</param>
         /// <param name="settings">The settings object to use for the transport</param>
         /// <param name="error">Error byte. Does nothhing</param>
-        void Connect(string address, int port, object settings, out byte error);
+        void Connect(string address, int port, object settings, out byte error, System.Action OnConnectComplete);
         /// <summary>
         /// Starts to listen for incomming clients.
         /// </summary>
         /// <param name="settings">The settings object for the transport</param>
-        void RegisterServerListenSocket(object settings);
+        void RegisterServerListenSocket(object settings, System.Action OnRegisterServerListenSocketComplete);
         /// <summary>
         /// Disconnects a client from the server
         /// </summary>
