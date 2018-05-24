@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 using MLAPI.MonoBehaviours.Core;
 using System;
 using System.Collections.Generic;
@@ -123,7 +123,7 @@ namespace MLAPI.Data.Transports.UNET
             NetworkTransport.SendQueuedMessages(netId.HostId, netId.ConnectionId, out error);
         }
 
-        public void RegisterServerListenSocket(object settings)
+        public void RegisterServerListenSocket(object settings, System.Action OnRegisterServerListenSocketComplete)
         {
             HostTopology topology = new HostTopology((ConnectionConfig)settings, NetworkingManager.singleton.NetworkConfig.MaxConnections);
             for (int i = 0; i < ServerTransports.Count; i++)
@@ -133,6 +133,8 @@ namespace MLAPI.Data.Transports.UNET
                 else
                     NetworkTransport.AddHost(topology, ServerTransports[i].Port);
             }
+
+            OnRegisterServerListenSocketComplete.Invoke();
         }
 
         public int AddChannel(ChannelType type, object settings)
@@ -175,10 +177,12 @@ namespace MLAPI.Data.Transports.UNET
             };
         }
 
-        public void Connect(string address, int port, object settings, out byte error)
+        public void Connect(string address, int port, object settings, out byte error, System.Action OnConnectComplete)
         {
             serverHostId = NetworkTransport.AddHost(new HostTopology((ConnectionConfig)settings, 1));
             serverConnectionId = NetworkTransport.Connect(serverHostId, address, port, 0, out error);
+
+            OnConnectComplete.Invoke();
         }
     }
 }
