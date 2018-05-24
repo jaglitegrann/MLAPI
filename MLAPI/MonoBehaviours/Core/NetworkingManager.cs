@@ -1,4 +1,4 @@
-﻿using MLAPI.Data;
+using MLAPI.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -490,32 +490,28 @@ namespace MLAPI.MonoBehaviours.Core
         /// <summary>
         /// Starts a server
         /// </summary>
-        public void StartServer()
-        {
+        public void StartServer() {
             if (LogHelper.CurrentLogLevel <= LogLevel.Developer) LogHelper.LogInfo("StartServer()");
-            if (isServer || isClient)
-            {
+            if (isServer || isClient) {
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Cannot start server while an instance is already running");
                 return;
             }
 
-            if (NetworkConfig.ConnectionApproval)
-            {
-                if (ConnectionApprovalCallback == null)
-                {
+            if (NetworkConfig.ConnectionApproval) {
+                if (ConnectionApprovalCallback == null) {
                     if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("No ConnectionApproval callback defined. Connection approval will timeout");
                 }
             }
 
             object settings = Init(true);
-            NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings);
+            NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings, () => {;
+                _isServer = true;
+                _isClient = false;
+                isListening = true;
 
-            _isServer = true;
-            _isClient = false;
-            isListening = true;
-
-            if (OnServerStarted != null)
-                OnServerStarted.Invoke();
+                if (OnServerStarted != null)
+                    OnServerStarted.Invoke();
+            });
         }
 
         /// <summary>
@@ -532,10 +528,11 @@ namespace MLAPI.MonoBehaviours.Core
 
             object settings = Init(false);
             byte error;
-            NetworkConfig.NetworkTransport.Connect(NetworkConfig.ConnectAddress, NetworkConfig.ConnectPort, settings, out error);
-            _isServer = false;
-            _isClient = true;
-            isListening = true;
+            NetworkConfig.NetworkTransport.Connect(NetworkConfig.ConnectAddress, NetworkConfig.ConnectPort, settings, out error, () => {
+                _isServer = false;
+                _isClient = true;
+                isListening = true;
+            });
         }
 
         /// <summary>
@@ -617,27 +614,26 @@ namespace MLAPI.MonoBehaviours.Core
                 }
             }
             object settings = Init(true);
-            NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings);
+            NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings, () => {
 
-            _isServer = true;
-            _isClient = true;
-            isListening = true;
+                _isServer = true;
+                _isClient = true;
+                isListening = true;
 
-            uint hostClientId = NetworkConfig.NetworkTransport.HostDummyId;
-            connectedClients.Add(hostClientId, new NetworkedClient()
-            {
-                ClientId = hostClientId
+                uint hostClientId = NetworkConfig.NetworkTransport.HostDummyId;
+                connectedClients.Add(hostClientId, new NetworkedClient() {
+                    ClientId = hostClientId
+                });
+                connectedClientsList.Add(connectedClients[hostClientId]);
+
+                if (NetworkConfig.HandleObjectSpawning) {
+                    prefabId = prefabId == -1 ? NetworkConfig.NetworkPrefabIds[NetworkConfig.PlayerPrefabName] : prefabId;
+                    SpawnManager.CreateSpawnedObject(prefabId, 0, hostClientId, true, pos.GetValueOrDefault(), rot.GetValueOrDefault(), null, false, false);
+                }
+
+                if (OnServerStarted != null)
+                    OnServerStarted.Invoke();
             });
-            connectedClientsList.Add(connectedClients[hostClientId]);
-
-            if (NetworkConfig.HandleObjectSpawning)
-            {
-                prefabId = prefabId == -1 ? NetworkConfig.NetworkPrefabIds[NetworkConfig.PlayerPrefabName] : prefabId;
-                SpawnManager.CreateSpawnedObject(prefabId, 0, hostClientId, true, pos.GetValueOrDefault(), rot.GetValueOrDefault(), null, false, false);
-            }
-
-            if (OnServerStarted != null)
-                OnServerStarted.Invoke();
         }
 
         private void OnEnable()
