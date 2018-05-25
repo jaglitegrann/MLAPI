@@ -148,6 +148,14 @@ namespace MLAPI.MonoBehaviours.Core
         /// The callback to invoke once the server is ready
         /// </summary>
         public Action OnServerStarted = null;
+        /// <summary>
+        /// The callback to invoke once the client is ready
+        /// </summary>
+        public Action OnClientStarted = null;
+        /// <summary>
+        /// The callback to invoke once the server or client is ready
+        /// </summary>
+        public Action OnStarted = null;
         public delegate void ConnectionApprovedDelegate(uint clientId, int prefabId, bool approved, Vector3 position, Quaternion rotation);
         /// <summary>
         /// The callback to invoke during connection approval
@@ -511,6 +519,9 @@ namespace MLAPI.MonoBehaviours.Core
 
                 if (OnServerStarted != null)
                     OnServerStarted.Invoke();
+
+                if (OnStarted != null)
+                    OnStarted.Invoke();
             });
         }
 
@@ -532,6 +543,12 @@ namespace MLAPI.MonoBehaviours.Core
                 _isServer = false;
                 _isClient = true;
                 isListening = true;
+
+                if (OnClientStarted != null)
+                    OnClientStarted.Invoke();
+
+                if (OnStarted != null)
+                    OnStarted.Invoke();
             });
         }
 
@@ -633,6 +650,13 @@ namespace MLAPI.MonoBehaviours.Core
 
                 if (OnServerStarted != null)
                     OnServerStarted.Invoke();
+
+                if (OnClientStarted != null)
+                    OnClientStarted.Invoke();
+
+                if (OnStarted != null)
+                    OnStarted.Invoke();
+
             });
         }
 
@@ -1073,7 +1097,7 @@ namespace MLAPI.MonoBehaviours.Core
                 if(NetworkConfig.HandleObjectSpawning)
                 {
                     if (connectedClients[clientId].PlayerObject != null)
-                        Destroy(connectedClients[clientId].PlayerObject);
+                        Destroy(connectedClients[clientId].PlayerObject.gameObject);
                     for (int i = 0; i < connectedClients[clientId].OwnedObjects.Count; i++)
                     {
                         if (connectedClients[clientId].OwnedObjects[i] != null)
