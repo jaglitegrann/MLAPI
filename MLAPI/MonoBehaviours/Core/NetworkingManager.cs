@@ -240,6 +240,7 @@ namespace MLAPI.MonoBehaviours.Core
         private object Init(bool server)
         {
             if (LogHelper.CurrentLogLevel <= LogLevel.Developer) LogHelper.LogInfo("Init()");
+            myClientId = 0;
             networkTime = 0f;
             lastSendTickTime = 0f;
             lastEventTickTime = 0f;
@@ -788,7 +789,7 @@ namespace MLAPI.MonoBehaviours.Core
                                 break;
                         }
                         // Only do another iteration if: there are no more messages AND (there is no limit to max events or we have processed less than the maximum)
-                    } while (eventType != NetEventType.Nothing && (NetworkConfig.MaxReceiveEventsPerTickRate <= 0 || processedEvents < NetworkConfig.MaxReceiveEventsPerTickRate));
+                    } while (isListening && (eventType != NetEventType.Nothing && (NetworkConfig.MaxReceiveEventsPerTickRate <= 0 || processedEvents < NetworkConfig.MaxReceiveEventsPerTickRate)));
                     lastReceiveTickTime = NetworkTime;
                     NetworkProfiler.EndTick();
                 }
