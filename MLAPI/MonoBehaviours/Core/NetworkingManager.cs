@@ -1,4 +1,4 @@
-using MLAPI.Data;
+﻿using MLAPI.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -160,6 +160,10 @@ namespace MLAPI.MonoBehaviours.Core
         /// The callback to invoke when shutting down.
         /// </summary>
         public Action OnShutdown = null;
+		/// <summary>
+        /// Wheter or not this NetworkedManager is an multiple instance of the singleton about to be removed.
+        /// </summary>
+        private bool isMultipleInstance = false;
         public delegate void ConnectionApprovedDelegate(uint clientId, int prefabId, bool approved, Vector3 position, Quaternion rotation);
         /// <summary>
         /// The callback to invoke during connection approval
@@ -670,7 +674,8 @@ namespace MLAPI.MonoBehaviours.Core
             if (singleton != null)
             {
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Multiple NetworkingManagers");
-                Destroy(this);
+                this.isMultipleInstance = true;
+                Destroy(this.gameObject);
                 return;
             }
             _singleton = this;
@@ -682,8 +687,10 @@ namespace MLAPI.MonoBehaviours.Core
         
         private void OnDestroy()
         {
-            _singleton = null;
-            Shutdown();
+            if (!isMultipleInstance) {
+                _singleton = null;
+                Shutdown();
+            }
         }
 
         private void Shutdown()
