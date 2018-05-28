@@ -499,7 +499,8 @@ namespace MLAPI.MonoBehaviours.Core
         /// <summary>
         /// Starts a server
         /// </summary>
-        public void StartServer() {
+        public void StartServer() 
+        {
             if (LogHelper.CurrentLogLevel <= LogLevel.Developer) LogHelper.LogInfo("StartServer()");
             if (isServer || isClient) {
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Cannot start server while an instance is already running");
@@ -520,7 +521,6 @@ namespace MLAPI.MonoBehaviours.Core
 
                 if (OnServerStarted != null)
                     OnServerStarted.Invoke();
-
                 if (OnStarted != null)
                     OnStarted.Invoke();
             });

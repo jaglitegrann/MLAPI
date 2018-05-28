@@ -62,11 +62,13 @@ namespace MLAPI.Data.Transports
         /// <param name="port">The port to connect to</param>
         /// <param name="settings">The settings object to use for the transport</param>
         /// <param name="error">Error byte. Does nothhing</param>
+        /// <param name="OnConnectComplete">Hook for when Connect is completed</param>
         void Connect(string address, int port, object settings, out byte error, System.Action OnConnectComplete);
         /// <summary>
         /// Starts to listen for incomming clients.
         /// </summary>
         /// <param name="settings">The settings object for the transport</param>
+        /// <param name="OnRegisterServerListenSocketComplete">Hook for when RegisterServerListenSocket is completed</param>
         void RegisterServerListenSocket(object settings, System.Action OnRegisterServerListenSocketComplete);
         /// <summary>
         /// Disconnects a client from the server
