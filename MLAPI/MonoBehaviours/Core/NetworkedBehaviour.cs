@@ -673,7 +673,8 @@ namespace MLAPI.MonoBehaviours.Core
             }
         }
 
-        void invokeSyncvarMethodOnHost(MethodInfo hookMethod) {
+        void invokeSyncvarMethodOnHost(MethodInfo hookMethod) 
+        {
             if (hookMethod != null && isHost)
                 hookMethod.Invoke(this, null);
         }
