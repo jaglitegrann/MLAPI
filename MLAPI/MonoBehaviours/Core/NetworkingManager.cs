@@ -156,6 +156,10 @@ namespace MLAPI.MonoBehaviours.Core
         /// The callback to invoke once the server or client is ready
         /// </summary>
         public Action OnStarted = null;
+        /// <summary>
+        /// The callback to invoke when shutting down.
+        /// </summary>
+        public Action OnShutdown = null;
         public delegate void ConnectionApprovedDelegate(uint clientId, int prefabId, bool approved, Vector3 position, Quaternion rotation);
         /// <summary>
         /// The callback to invoke during connection approval
@@ -693,6 +697,9 @@ namespace MLAPI.MonoBehaviours.Core
 
             if (NetworkConfig != null && NetworkConfig.NetworkTransport != null) //The Transport is set during Init time, thus it is possible for the Transport to be null
                 NetworkConfig.NetworkTransport.Shutdown();
+
+            if (OnShutdown != null)
+                OnShutdown.Invoke();
         }
 
         private float lastReceiveTickTime;
