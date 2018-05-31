@@ -1,4 +1,4 @@
-﻿using MLAPI.MonoBehaviours.Core;
+using MLAPI.MonoBehaviours.Core;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
@@ -123,7 +123,7 @@ namespace MLAPI.Data.Transports.UNET
             RelayTransport.SendQueuedMessages(netId.HostId, netId.ConnectionId, out error);
         }
 
-        public void RegisterServerListenSocket(object settings)
+        public void RegisterServerListenSocket(object settings, System.Action OnRegisterServerListenSocketComplete)
         {
             HostTopology topology = new HostTopology((ConnectionConfig)settings, NetworkingManager.singleton.NetworkConfig.MaxConnections);
             for (int i = 0; i < ServerTransports.Count; i++)
@@ -133,6 +133,7 @@ namespace MLAPI.Data.Transports.UNET
                 else
                     RelayTransport.AddHost(topology, ServerTransports[i].Port, true, relayAddress, relayPort);
             }
+            OnRegisterServerListenSocketComplete.Invoke();
         }
 
         public int AddChannel(ChannelType type, object settings)
@@ -175,10 +176,12 @@ namespace MLAPI.Data.Transports.UNET
             };
         }
 
-        public void Connect(string address, int port, object settings, out byte error)
+        public void Connect(string address, int port, object settings, out byte error, System.Action OnConnectComplete)
         {
             serverHostId = RelayTransport.AddHost(new HostTopology((ConnectionConfig)settings, 1), false, relayAddress, relayPort);
             serverConnectionId = RelayTransport.Connect(serverHostId, address, port, relayAddress, relayPort, 0, out error);
+
+            OnConnectComplete.Invoke();
         }
     }
 }
