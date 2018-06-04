@@ -1,4 +1,4 @@
-﻿using MLAPI.Data;
+using MLAPI.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -522,29 +522,19 @@ namespace MLAPI.MonoBehaviours.Core
             }
 
             object settings = Init(true);
-<<<<<<< HEAD
+
             NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings, () => {;
                 _isServer = true;
                 _isClient = false;
                 isListening = true;
+
+                SpawnSceneObjects();
 
                 if (OnServerStarted != null)
                     OnServerStarted.Invoke();
                 if (OnStarted != null)
                     OnStarted.Invoke();
             });
-=======
-            NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings);
-
-            _isServer = true;
-            _isClient = false;
-            isListening = true;
-
-            SpawnSceneObjects();
-
-            if (OnServerStarted != null)
-                OnServerStarted.Invoke();
->>>>>>> d0da38948706d8417b3193d4493dba3c2275b8e9
         }
 
         /// <summary>
@@ -670,23 +660,16 @@ namespace MLAPI.MonoBehaviours.Core
                     SpawnManager.CreateSpawnedObject(prefabId, 0, hostClientId, true, pos.GetValueOrDefault(), rot.GetValueOrDefault(), null, false, false);
                 }
 
+                SpawnSceneObjects();
+
                 if (OnServerStarted != null)
                     OnServerStarted.Invoke();
-
                 if (OnClientStarted != null)
                     OnClientStarted.Invoke();
-
-<<<<<<< HEAD
                 if (OnStarted != null)
                     OnStarted.Invoke();
 
             });
-=======
-            SpawnSceneObjects();
-
-            if (OnServerStarted != null)
-                OnServerStarted.Invoke();
->>>>>>> d0da38948706d8417b3193d4493dba3c2275b8e9
         }
 
         private void OnEnable()
