@@ -65,6 +65,15 @@ namespace MLAPI.MonoBehaviours.Core
                 return NetworkingManager.singleton.isHost;
             }
         }
+
+        protected bool isOwnedByNoone
+        {
+            get
+            {
+                return networkedObject.isOwnedByNoone;
+            }
+        }
+
         /// <summary>
         /// Gets the NetworkedObject that owns this NetworkedBehaviour instance
         /// </summary>
@@ -262,11 +271,6 @@ namespace MLAPI.MonoBehaviours.Core
         /// <param name="methodParams">Method parameters to send</param>
         protected void InvokeCommand(string methodName, params object[] methodParams)
         {
-            if (NetworkingManager.singleton.isServer)
-            {
-                if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Cannot invoke commands from server");
-                return;
-            }
             if (ownerClientId != NetworkingManager.singleton.MyClientId)
             {
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Cannot invoke command for object without ownership");
@@ -280,6 +284,16 @@ namespace MLAPI.MonoBehaviours.Core
             if (NetworkingManager.singleton.NetworkConfig.AttributeMessageMode == AttributeMessageMode.Disabled)
             {
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Calling InvokeCommand is not allowed when AttributeMessageMode is set to disabled");
+                return;
+            }
+            if (NetworkingManager.singleton.isServer)
+            {
+                if (isHost)
+                {
+                    cachedMethods[methodName].Invoke(this, methodParams);
+                    return;
+                }
+                if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Cannot invoke commands from server");
                 return;
             }
 
@@ -318,6 +332,7 @@ namespace MLAPI.MonoBehaviours.Core
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Calling InvokeClientRpc is not allowed when AttributeMessageMode is set to disabled");
                 return;
             }
+            if (isHost) cachedMethods[methodName].Invoke(this, methodParams);
 
             ulong hash = Data.Cache.GetMessageAttributeHash(methodName, NetworkingManager.singleton.NetworkConfig.AttributeMessageMode);
             using (BitWriter writer = BitWriter.Get())
@@ -354,6 +369,7 @@ namespace MLAPI.MonoBehaviours.Core
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("Calling InvokeTargetRpc is not allowed when AttributeMessageMode is set to disabled");
                 return;
             }
+            if (isHost) cachedMethods[methodName].Invoke(this, methodParams);
 
             ulong hash = Data.Cache.GetMessageAttributeHash(methodName, NetworkingManager.singleton.NetworkConfig.AttributeMessageMode);
             using (BitWriter writer = BitWriter.Get())
@@ -884,7 +900,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to the server from client
+        /// Sends a buffer to the client that owns this object from the server.
         /// </summary>
         /// <param name="messageType">User defined messageType</param>
         /// <param name="channelName">User defined channelName</param>
@@ -916,7 +932,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to the server from client
+        /// Sends a buffer to the client that owns this object from the server.
         /// </summary>
         /// <param name="messageType">User defined messageType</param>
         /// <param name="channelName">User defined channelName</param>
@@ -944,7 +960,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a binary serialized class to the server from client
+        /// Sends a binary serialized class to the client that owns this object from the server.
         /// </summary>
         /// <typeparam name="T">The class type to send</typeparam>
         /// <param name="messageType">User defined messageType</param>
@@ -1248,7 +1264,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to a client with a given clientId from Server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to a client with a given clientId from Server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <param name="clientId">The clientId to send the message to</param>
         /// <param name="messageType">User defined messageType</param>
@@ -1281,7 +1297,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to a client with a given clientId from Server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to a client with a given clientId from Server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <param name="clientId">The clientId to send the message to</param>
         /// <param name="messageType">User defined messageType</param>
@@ -1310,7 +1326,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to a client with a given clientId from Server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to a client with a given clientId from Server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <typeparam name="T">The class type to send</typeparam>
         /// <param name="clientId">The clientId to send the message to</param>
@@ -1400,7 +1416,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <param name="clientIds">The clientId's to send to</param>
         /// <param name="messageType">User defined messageType</param>
@@ -1433,7 +1449,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <param name="clientIds">The clientId's to send to</param>
         /// <param name="messageType">User defined messageType</param>
@@ -1462,7 +1478,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <typeparam name="T">The class type to send</typeparam>
         /// <param name="clientIds">The clientId's to send to</param>
@@ -1552,7 +1568,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <param name="clientIds">The clientId's to send to</param>
         /// <param name="messageType">User defined messageType</param>
@@ -1585,7 +1601,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <param name="clientIds">The clientId's to send to</param>
         /// <param name="messageType">User defined messageType</param>
@@ -1614,7 +1630,7 @@ namespace MLAPI.MonoBehaviours.Core
         }
 
         /// <summary>
-        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour gets invoked
+        /// Sends a buffer to multiple clients from the server. Only handlers on this NetworkedBehaviour will get invoked
         /// </summary>
         /// <typeparam name="T">The class type to send</typeparam>
         /// <param name="clientIds">The clientId's to send to</param>

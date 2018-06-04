@@ -305,25 +305,6 @@ namespace MLAPI.MonoBehaviours.Core
                     NetworkConfig.NetworkPrefabNames.Add(i, NetworkConfig.NetworkedPrefabs[i].name);
                     networkedPrefabName.Add(NetworkConfig.NetworkedPrefabs[i].name);
                 }
-                if (NetworkConfig.EnableSceneSwitching)
-                {
-                    SpawnManager.MarkSceneObjects();
-                    if (NetworkConfig.HandleObjectSpawning)
-                    {
-                        if (server)
-                        {
-                            bool isServerState = _isServer;
-                            _isServer = true;
-                            NetworkedObject[] networkedObjects = FindObjectsOfType<NetworkedObject>();
-                            for (int i = 0; i < networkedObjects.Length; i++)
-                            {
-                                if (networkedObjects[i].sceneObject == null || networkedObjects[i].sceneObject == true)
-                                    networkedObjects[i].Spawn();
-                            }
-                            _isServer = isServerState;
-                        }
-                    }
-                }
             }
 
             //MLAPI channels and messageTypes
@@ -506,6 +487,23 @@ namespace MLAPI.MonoBehaviours.Core
             return settings;
         }
 
+        private void SpawnSceneObjects()
+        {
+            if (NetworkConfig.EnableSceneSwitching)
+            {
+                SpawnManager.MarkSceneObjects();
+                if (isServer && NetworkConfig.HandleObjectSpawning)
+                {
+                    NetworkedObject[] networkedObjects = FindObjectsOfType<NetworkedObject>();
+                    for (int i = 0; i < networkedObjects.Length; i++)
+                    {
+                        if (networkedObjects[i].sceneObject == null || networkedObjects[i].sceneObject == true)
+                            networkedObjects[i].Spawn();
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Starts a server
         /// </summary>
@@ -524,6 +522,7 @@ namespace MLAPI.MonoBehaviours.Core
             }
 
             object settings = Init(true);
+<<<<<<< HEAD
             NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings, () => {;
                 _isServer = true;
                 _isClient = false;
@@ -534,6 +533,18 @@ namespace MLAPI.MonoBehaviours.Core
                 if (OnStarted != null)
                     OnStarted.Invoke();
             });
+=======
+            NetworkConfig.NetworkTransport.RegisterServerListenSocket(settings);
+
+            _isServer = true;
+            _isClient = false;
+            isListening = true;
+
+            SpawnSceneObjects();
+
+            if (OnServerStarted != null)
+                OnServerStarted.Invoke();
+>>>>>>> d0da38948706d8417b3193d4493dba3c2275b8e9
         }
 
         /// <summary>
@@ -665,10 +676,17 @@ namespace MLAPI.MonoBehaviours.Core
                 if (OnClientStarted != null)
                     OnClientStarted.Invoke();
 
+<<<<<<< HEAD
                 if (OnStarted != null)
                     OnStarted.Invoke();
 
             });
+=======
+            SpawnSceneObjects();
+
+            if (OnServerStarted != null)
+                OnServerStarted.Invoke();
+>>>>>>> d0da38948706d8417b3193d4493dba3c2275b8e9
         }
 
         private void OnEnable()
