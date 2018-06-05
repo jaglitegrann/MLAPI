@@ -94,6 +94,10 @@ namespace MLAPI.NetworkingManagerComponents.Core
 
         private static void OnSceneLoaded(AsyncOperation operation)
         {
+            NetworkingManager.singleton.StartCoroutine(NetworkingManager.singleton.DelayCallOnSceneLoadComplete(operation));
+        }
+        public static void OnSceneLoadedDelayed(AsyncOperation operation) 
+        {
             List<NetworkedObject> objectsToKeep = SpawnManager.spawnedObjects.Values.ToList();
             //The last loaded scene
             nextScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);

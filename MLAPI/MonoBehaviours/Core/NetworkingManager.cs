@@ -857,6 +857,11 @@ namespace MLAPI.MonoBehaviours.Core
             }
         }
 
+        public IEnumerator DelayCallOnSceneLoadComplete(AsyncOperation operation) {
+            yield return null;
+            NetworkSceneManager.OnSceneLoadedDelayed(operation);
+        }
+
         private void HandleIncomingData(uint clientId, byte[] data, int channelId, uint totalSize)
         {
             if (LogHelper.CurrentLogLevel <= LogLevel.Developer) LogHelper.LogInfo("Unwrapping Data Header");
