@@ -96,9 +96,14 @@ namespace MLAPI.NetworkingManagerComponents.Binary
         private void Push<T>(T b)
         {
             if (b == null) collect.Add(b);
-            else if (b is string || b.GetType().IsArray || IsSupportedType(b.GetType()))
-                collect.Add(b is string ? Encoding.UTF8.GetBytes(b as string) : b as object);
-            else
+            else if (b is string || b.GetType().IsArray || IsSupportedType(b.GetType())) {
+                //collect.Add(b is string ? Encoding.UTF8.GetBytes(b as string) : b as object);
+                if (b is string) {
+                    WriteByteArray(Encoding.UTF8.GetBytes(b as string));
+                } else {
+                    collect.Add(b as object);
+                }
+            } else
                 if (LogHelper.CurrentLogLevel <= LogLevel.Normal) LogHelper.LogWarning("The type \"" + b.GetType() + "\" is not supported by the Binary Serializer. It will be ignored");
         }
 
