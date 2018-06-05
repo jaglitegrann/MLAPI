@@ -125,6 +125,13 @@ namespace MLAPI.NetworkingManagerComponents.Core
             {
                 SpawnManager.DestroySceneObjects();
             }
+
+            List<NetworkedObject> spawnedObjects = SpawnManager.spawnedObjects.Values.ToList();
+            for (int i = 0; i < spawnedObjects.Count; i++) {
+                for (int e = 0; e < spawnedObjects[i].childNetworkedBehaviours.Count; e++) {
+                    spawnedObjects[i].childNetworkedBehaviours[e].OnNetworkSceneLoaded();
+                }
+            }
         }
     }
 }

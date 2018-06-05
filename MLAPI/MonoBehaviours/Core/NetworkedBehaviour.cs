@@ -198,6 +198,13 @@ namespace MLAPI.MonoBehaviours.Core
         {
 
         }
+        /// <summary>
+        /// Gets called when the networkscene has completed loading.
+        /// </summary>
+        public virtual void OnNetworkSceneLoaded() 
+        {
+
+        }
 
         internal Dictionary<string, MethodInfo> cachedMethods = new Dictionary<string, MethodInfo>();
         internal Dictionary<string, string> messageChannelName = new Dictionary<string, string>();
