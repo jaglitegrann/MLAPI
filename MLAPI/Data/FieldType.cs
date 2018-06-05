@@ -1,6 +1,8 @@
 ﻿using MLAPI.NetworkingManagerComponents.Binary;
 using System;
 using UnityEngine;
+using System.Collections.Generic;
+using MLAPI.NetworkingManagerComponents.Core;
 
 namespace MLAPI.Data
 {
@@ -134,6 +136,14 @@ namespace MLAPI.Data
                     writer.WriteFloat(euler.y);
                     writer.WriteFloat(euler.z);
                 }
+                else if (newValue is GameObject) {
+                    MonoBehaviours.Core.NetworkedObject networkedObject = (newValue as GameObject).GetComponent<MonoBehaviours.Core.NetworkedObject>();
+                    if (networkedObject != null) {
+                        writer.WriteUInt(networkedObject.NetworkId);
+                    } else {
+                        if (LogHelper.CurrentLogLevel <= LogLevel.Nothing) LogHelper.LogError("Trying to send a gameobject whitout a NetworkedObject");
+                    }
+                }
                 else
                 {
                     BinarySerializer.Serialize(newValue, writer);
@@ -196,6 +206,14 @@ namespace MLAPI.Data
                     writer.WriteFloat(euler.x);
                     writer.WriteFloat(euler.y);
                     writer.WriteFloat(euler.z);
+                }
+                else if (value is GameObject) {
+                    MonoBehaviours.Core.NetworkedObject networkedObject = (value as GameObject).GetComponent<MonoBehaviours.Core.NetworkedObject>();
+                    if(networkedObject != null) {
+                        writer.WriteUInt(networkedObject.NetworkId);
+                    } else {
+                        if (LogHelper.CurrentLogLevel <= LogLevel.Nothing) LogHelper.LogError("Trying to send a gameobject whitout a NetworkedObject");
+                    }
                 }
                 else
                 {
@@ -279,6 +297,9 @@ namespace MLAPI.Data
                     euler.x = reader.ReadFloat();
                     euler.y = reader.ReadFloat();
                     return Quaternion.Euler(euler);
+                } 
+                else if (type == typeof(GameObject)) {
+                    return MonoBehaviours.Core.NetworkingManager.singleton.GetNetworkedObject(reader.ReadUInt()).gameObject;
                 }
                 else
                 {
@@ -345,6 +366,9 @@ namespace MLAPI.Data
                     euler.x = reader.ReadFloat();
                     euler.y = reader.ReadFloat();
                     return Quaternion.Euler(euler);
+                }
+                else if (type == typeof(GameObject)) {
+                    return MonoBehaviours.Core.NetworkingManager.singleton.GetNetworkedObject(reader.ReadUInt()).gameObject;
                 }
                 else
                 {
