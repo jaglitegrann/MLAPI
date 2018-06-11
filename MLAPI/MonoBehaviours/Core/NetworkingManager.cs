@@ -785,7 +785,7 @@ namespace MLAPI.MonoBehaviours.Core
                                 break;
                             case NetEventType.Data:
                                 if (LogHelper.CurrentLogLevel <= LogLevel.Developer) LogHelper.LogInfo("Incomming Data From " + clientId + " : " + receivedSize + " bytes");
-
+                                NetworkProfiler.addBytesReceived((uint)receivedSize);
                                 HandleIncomingData(clientId, messageBuffer, channelId, (uint)receivedSize);
                                 break;
                             case NetEventType.Disconnect:

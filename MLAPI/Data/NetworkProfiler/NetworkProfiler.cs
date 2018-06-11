@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using MLAPI.NetworkingManagerComponents.Core;
 using UnityEngine;
 
@@ -6,6 +6,26 @@ namespace MLAPI.Data.NetworkProfiler
 {
     public static class NetworkProfiler
     {
+        private static uint bytesSent = 0;
+        public static uint BytesSent {
+            get {
+                return bytesSent;
+            }
+        }
+        public static void addBytesSent(uint sent) {
+            bytesSent += sent;
+        }
+
+        private static uint bytesReceived = 0;
+        public static uint BytesReceived {
+            get {
+                return bytesReceived;
+            }
+        }
+        public static void addBytesReceived(uint received) {
+            bytesReceived += received;
+        }
+
         public static FixedQueue<ProfilerTick> Ticks = null;
         private static int tickHistory = 1024;
         private static int EventIdCounter = 0;
