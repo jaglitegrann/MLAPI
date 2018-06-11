@@ -177,20 +177,20 @@ namespace MLAPI.MonoBehaviours.Core
 
         }
 
-        /// <summary>
-        /// Gets called when SyncedVars gets updated
-        /// </summary>
+        /// <summary>                                                                               
+        /// Gets called when SyncedVars gets updated                                                
+        /// </summary>                                                                              
         public virtual void OnSyncVarUpdate()
-        {
-
-        }
-        /// <summary>
-        /// Gets called when the local client gains ownership of this object
-        /// </summary>
-        public virtual void OnGainedOwnership()
-        {
-
-        }
+        {                                                                                                  
+            
+        }                                                                                                  
+        /// <summary>                                                                                      
+        /// Gets called when the local client gains ownership of this object                               
+        /// </summary>                                                                                     
+        public virtual void OnGainedOwnership()                                                            
+        {                                                                                                 
+            
+        }                                                                                                  
         /// <summary>
         /// Gets called when we loose ownership of this object
         /// </summary>
@@ -694,7 +694,7 @@ namespace MLAPI.MonoBehaviours.Core
                         Dirty = false,
                         Target = attribute.target,
                         FieldInfo = sortedFields[i],
-                        FieldValue = FieldTypeHelper.GetReferenceArrayValue(sortedFields[i].GetValue(this), null),
+                        FieldValue = sortedFields[i].GetValue(this).SheepCopy(),
                         HookMethod = hookMethod,
                         Attribute = attribute
                     });
@@ -710,6 +710,7 @@ namespace MLAPI.MonoBehaviours.Core
                 syncedVarFields[fieldIndex].HookMethod.Invoke(this, null);
         }
 
+        
         internal void FlushSyncedVarsToClient(uint clientId)
         {
             //This NetworkedBehaviour has no SyncVars
@@ -740,7 +741,7 @@ namespace MLAPI.MonoBehaviours.Core
                     writer.WriteBool(mask[i]);
                     if (syncedVarFields[i].Target && clientId != ownerClientId)
                         continue;
-                    FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this), null);
+                    FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this));
                 }
                 bool observed = InternalMessageHandler.Send(clientId, "MLAPI_SYNC_VAR_UPDATE", "MLAPI_INTERNAL", writer, networkId);
                 if (observed)
@@ -801,8 +802,9 @@ namespace MLAPI.MonoBehaviours.Core
                         //Writes all the indexes of the dirty syncvars.
                         if (syncedVarFields[i].Dirty == true)
                         {
-                            FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
-                            syncedVarFields[i].FieldValue = FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
+                            object o = syncedVarFields[i].FieldInfo.GetValue(this).SheepCopy();
+                            FieldTypeHelper.WriteFieldType(writer, o, syncedVarFields[i].FieldValue);
+                            syncedVarFields[i].FieldValue = o; //FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                             syncedVarFields[i].Dirty = false;
                             InvokeSyncvarMethodOnServer(syncedVarFields[i].HookMethod);
                         }
@@ -834,11 +836,12 @@ namespace MLAPI.MonoBehaviours.Core
                             //Writes all the indexes of the dirty syncvars.
                             if (syncedVarFields[i].Dirty == true)
                             {
-                                FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
+                                object o = syncedVarFields[i].FieldInfo.GetValue(this).SheepCopy();
+                                FieldTypeHelper.WriteFieldType(writer, o, syncedVarFields[i].FieldValue);
                                 if (nonTargetDirtyCount == 0)
                                 {
                                     //Only targeted SyncedVars were changed. Thus we need to set them as non dirty here since it wont be done by the next loop.
-                                    syncedVarFields[i].FieldValue = FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
+                                    syncedVarFields[i].FieldValue = o; //FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                                     syncedVarFields[i].Dirty = false;
                                     InvokeSyncvarMethodOnServer(syncedVarFields[i].HookMethod);
                                 }
@@ -868,8 +871,9 @@ namespace MLAPI.MonoBehaviours.Core
                         //Writes all the indexes of the dirty syncvars.
                         if (syncedVarFields[i].Dirty == true && !syncedVarFields[i].Target)
                         {
-                            FieldTypeHelper.WriteFieldType(writer, syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
-                            syncedVarFields[i].FieldValue = FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
+                            object o = syncedVarFields[i].FieldInfo.GetValue(this).SheepCopy();
+                            FieldTypeHelper.WriteFieldType(writer, o, syncedVarFields[i].FieldValue);
+                            syncedVarFields[i].FieldValue = o; //FieldTypeHelper.GetReferenceArrayValue(syncedVarFields[i].FieldInfo.GetValue(this), syncedVarFields[i].FieldValue);
                             syncedVarFields[i].Dirty = false;
                             InvokeSyncvarMethodOnServer(syncedVarFields[i].HookMethod);
                         }
@@ -915,6 +919,7 @@ namespace MLAPI.MonoBehaviours.Core
             }
             return dirty;
         }
+        
         #endregion
 
         #region SEND METHODS
