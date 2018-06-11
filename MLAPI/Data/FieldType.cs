@@ -118,7 +118,7 @@ namespace MLAPI.Data
                     }
                 }
             }
-            else if(!newValueType.IsValueType && newValueType != typeof(string)) throw new Exception("[MLAPI] Reference typed objects are not supported in SyncedVar fields");
+            else if(!newValueType.IsValueType && newValueType != typeof(string) && newValueType != typeof(GameObject)) throw new Exception("[MLAPI] Reference typed objects are not supported in SyncedVar fields");
             else
             {
                 if (newValue is bool)
@@ -234,7 +234,7 @@ namespace MLAPI.Data
                     return newArray;
                 }
             }
-            else if (!type.IsValueType && type != typeof(string)) throw new Exception("[MLAPI] Reference typed objects are not supported in SyncedVar fields");
+            else if (!type.IsValueType && type != typeof(string) && type != typeof(GameObject)) throw new Exception("[MLAPI] Reference typed objects are not supported in SyncedVar fields");
             else
             {
                 if (type == typeof(bool))
